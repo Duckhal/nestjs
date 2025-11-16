@@ -4,12 +4,16 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('/users')
 export class UsersController {
@@ -26,17 +30,21 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(Number(id));
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  updateUser(@Param('id') id: string, @Body() updateData: User) {
-    return this.usersService.update(Number(id), updateData);
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateData: UpdateUserDto,
+  ) {
+    return this.usersService.update(id, updateData);
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
-    return this.usersService.remove(Number(id));
+  @UseGuards(AuthGuard)
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.remove(id);
   }
 }
